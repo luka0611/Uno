@@ -8,106 +8,88 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b1026;--panel:#111936cc;--txt:#f6f8ff;--accent:#8d6dff;--red:#ff5f7d;--blue:#58b7ff;--green:#63e68c;--yellow:#ffd24f}
+    :root{--bg:#0b1026;--txt:#f6f8ff;--accent:#8d6dff;--red:#ff5f7d;--blue:#58b7ff;--green:#63e68c;--yellow:#ffd24f}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{margin:0;font-family:Nunito,sans-serif;color:var(--txt);min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 20% 10%,#25347c 0,#0b1026 42%,#05070f 100%)}
     #fx-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
     .orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;animation:drift 11s ease-in-out infinite}
-    .orb:nth-child(1){width:180px;height:180px;background:#7c5cff66;top:8%;left:-60px}
-    .orb:nth-child(2){width:120px;height:120px;background:#4dabf766;top:65%;right:-40px;animation-delay:1s}
-    .orb:nth-child(3){width:140px;height:140px;background:#ff4d6d55;top:40%;left:72%;animation-delay:2.3s}
+    .orb:nth-child(1){width:180px;height:180px;background:#7c5cff66;top:8%;left:-60px}.orb:nth-child(2){width:120px;height:120px;background:#4dabf766;top:65%;right:-40px;animation-delay:1s}.orb:nth-child(3){width:140px;height:140px;background:#ff4d6d55;top:40%;left:72%;animation-delay:2.3s}
     @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}
-    .container{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:14px 12px 18px}
-    .screen{display:none}.screen.active{display:block;animation:fade .28s ease}
-    @keyframes fade{from{opacity:.1;transform:translateY(10px)}to{opacity:1;transform:none}}
-    h1,h2,h3{font-family:Fredoka,sans-serif;margin:8px 0 10px;letter-spacing:.4px}
-    h1{font-size:1.8rem}
+    .container{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:14px 12px 18px}
+    .screen{display:none}.screen.active{display:block;animation:fade .28s ease}@keyframes fade{from{opacity:.1;transform:translateY(10px)}to{opacity:1;transform:none}}
+    h1,h2,h3{font-family:Fredoka,sans-serif;margin:8px 0 10px;letter-spacing:.4px}h1{font-size:1.8rem}
     .card-panel{backdrop-filter:blur(14px);background:linear-gradient(165deg,#182245e8,#0f1530de);border:1px solid #ffffff1f;border-radius:22px;padding:14px;box-shadow:0 18px 34px #0007,inset 0 1px 0 #ffffff1d}
     .hero{display:flex;align-items:center;justify-content:space-between;gap:10px}.hero-tag{font-size:.78rem;background:#7c5cff2d;border:1px solid #baa7ff52;padding:5px 10px;border-radius:999px}
     .btn{border:none;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;background:linear-gradient(140deg,#9f7dff,#6a48f7);color:white;box-shadow:0 8px 20px #7f5cff3f;transition:transform .15s ease,filter .2s}
     .btn.secondary{background:linear-gradient(140deg,#34406e,#202c54)}.btn.danger{background:linear-gradient(130deg,#ff6d8e,#df3358)}
-    .btn:active{transform:scale(.97)} .btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+    .btn:active{transform:scale(.97)}.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
     input,select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid #ffffff24;background:#0f1632;color:#fff;outline:none}
     input:focus{border-color:#9b84ff;box-shadow:0 0 0 2px #8d6dff52}
     .grid{display:grid;gap:10px}.grid-2{grid-template-columns:1fr}
     .players{display:flex;gap:8px;flex-wrap:wrap}.pchip{padding:8px 12px;border-radius:999px;background:#ffffff17;border:1px solid #ffffff1f;font-size:.92rem}
-    .top-row,.mid-row,.bottom-row{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
-    .mid-row{padding:8px 0}
+    .status{padding:8px 12px;border-radius:13px;background:#00000052;border:1px solid #ffffff1c}.turn{animation:pulse 1.25s infinite}@keyframes pulse{0%{box-shadow:0 0 0 0 #7c5cff99}70%{box-shadow:0 0 0 15px #7c5cff00}100%{box-shadow:0 0 0 0 #7c5cff00}}
+
+    .top-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px}
+    .opponent{flex:1 1 150px;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:14px;background:#0b1335c2;border:1px solid #ffffff1d}
+    .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:linear-gradient(140deg,#6672ae,#2d386f)}
+    .opp-meta{font-size:.87rem;line-height:1.2}.opp-cards{display:flex;gap:2px;margin-left:auto}.back-mini{width:9px;height:14px;border-radius:3px;background:linear-gradient(145deg,#2d3640,#090d13);border:1px solid #ffffff36}
+
+    .center-board{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:center}
+    .pile{position:relative;min-height:130px;border-radius:18px;background:#080d22b8;border:2px dashed #ffffff33;display:grid;place-items:center;padding:8px;transition:.2s}
+    .pile-label{position:absolute;top:6px;left:8px;font-size:.75rem;opacity:.8}
+    .pile.drop-hover{border-color:#9d85ff;box-shadow:0 0 0 2px #8d6dff44 inset}
+    .card-back{width:74px;height:112px;border-radius:16px;background:linear-gradient(145deg,#222a35,#0a0f15);border:1px solid #ffffff44;box-shadow:inset 0 0 0 2px #ffffff12,0 10px 20px #0008;display:grid;place-items:center;font-weight:800;letter-spacing:1px}
+    #direction{font-size:1.6rem;background:#ffffff14;border:1px solid #ffffff1d;padding:8px 12px;border-radius:10px;text-align:center}
+
     .uno-card{width:74px;height:112px;border-radius:16px;padding:8px;font-weight:800;display:flex;align-items:center;justify-content:center;border:none;color:white;box-shadow:inset 0 0 0 2px #ffffff21,0 10px 18px #0008;transition:.2s}
-    .uno-card.playable{cursor:pointer}
-    .uno-card.playable:hover,.uno-card.playable:focus-visible{transform:translateY(-8px) scale(1.05);box-shadow:0 0 18px #fff7,0 10px 18px #0008}
-    .hand{display:flex;gap:8px;overflow-x:auto;padding:8px 2px 10px;scroll-snap-type:x proximity}
-    .hand .uno-card{scroll-snap-align:center}
-    .red{background:linear-gradient(145deg,#ff7e95,#b30a30)}.blue{background:linear-gradient(145deg,#7ac7ff,#135185)}
-    .green{background:linear-gradient(145deg,#74e994,#1f7a36)}.yellow{background:linear-gradient(145deg,#ffe67d,#aa8300)}
-    .wild{background:linear-gradient(145deg,#5f6770,#101318)}
-    .status{padding:8px 12px;border-radius:13px;background:#00000052;border:1px solid #ffffff1c}
-    .turn{animation:pulse 1.25s infinite}
-    @keyframes pulse{0%{box-shadow:0 0 0 0 #7c5cff99}70%{box-shadow:0 0 0 15px #7c5cff00}100%{box-shadow:0 0 0 0 #7c5cff00}}
-    #direction{font-size:1.7rem;background:#ffffff14;border:1px solid #ffffff1d;padding:5px 12px;border-radius:10px}
+    .uno-card.playable{cursor:pointer}.uno-card.playable:hover,.uno-card.playable:focus-visible{transform:translateY(-8px) scale(1.05);box-shadow:0 0 18px #fff7,0 10px 18px #0008}
+    .uno-card.dragging{opacity:.5;transform:rotate(5deg)}
+    .hand{display:flex;gap:8px;overflow-x:auto;padding:10px 2px;scroll-snap-type:x proximity;min-height:132px}.hand .uno-card{scroll-snap-align:center}
+    .red{background:linear-gradient(145deg,#ff7e95,#b30a30)}.blue{background:linear-gradient(145deg,#7ac7ff,#135185)}.green{background:linear-gradient(145deg,#74e994,#1f7a36)}.yellow{background:linear-gradient(145deg,#ffe67d,#aa8300)}.wild{background:linear-gradient(145deg,#5f6770,#101318)}
+
+    .action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}.chip{padding:8px 10px;border-radius:999px;background:#ffffff12;border:1px solid #ffffff24;font-size:.86rem}
+    .chip.warn{background:#ff627329;border-color:#ff8a95;color:#ffd3d8}
     .chat{max-height:170px;overflow:auto;background:#00000045;border:1px solid #ffffff1d;border-radius:12px;padding:8px}
     .modal{position:fixed;inset:0;background:#020205bc;display:none;align-items:center;justify-content:center;z-index:4}.modal.active{display:flex}
     .modal-box{width:min(92vw,370px);background:#131b3ddd;border:1px solid #ffffff28;padding:16px;border-radius:18px}
     .colors{display:flex;gap:10px;justify-content:center}.dot{width:52px;height:52px;border-radius:50%;cursor:pointer;box-shadow:inset 0 0 0 2px #fff7}
     #countdown{font-weight:800;color:#ffe685;min-height:1.2rem;margin-top:8px}
-    small{opacity:.8}
-    @media (min-width:740px){
-      .container{padding:20px}
-      .grid-2{grid-template-columns:1fr 1fr}
-      h1{font-size:2.1rem}
-      .card-panel{padding:18px}
-    }
+
+    @media (min-width:740px){.container{padding:20px}.grid-2{grid-template-columns:1fr 1fr}h1{font-size:2.1rem}.card-panel{padding:18px}}
   </style>
 </head>
 <body>
   <div id="fx-layer"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
   <div class="container">
-    <section id="menu" class="screen active">
-      <div class="card-panel">
-        <div class="hero"><h1>🔥 BLAZE CARDS</h1><span class="hero-tag">mobile first</span></div>
-        <p>UNO multiplayer com visual turbo para jogar no celular.</p>
-        <div class="grid grid-2">
-          <div><label>IP do servidor</label><input id="serverIp" placeholder="192.168.0.10"/></div>
-          <div><label>Apelido</label><input id="nickname" placeholder="Seu nome"/></div>
-        </div>
-        <div class="grid grid-2" style="margin-top:10px">
-          <button class="btn" id="btnCreate">CRIAR SALA</button>
-          <div class="grid" style="grid-template-columns:1fr auto">
-            <input id="roomCode" placeholder="CÓDIGO" maxlength="6"/>
-            <button class="btn secondary" id="btnJoin">ENTRAR</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section id="menu" class="screen active"><div class="card-panel"><div class="hero"><h1>🔥 BLAZE CARDS</h1><span class="hero-tag">mobile first</span></div><p>UNO multiplayer com visual turbo para jogar no celular.</p><div class="grid grid-2"><div><label>IP do servidor</label><input id="serverIp" placeholder="192.168.0.10"/></div><div><label>Apelido</label><input id="nickname" placeholder="Seu nome"/></div></div><div class="grid grid-2" style="margin-top:10px"><button class="btn" id="btnCreate">CRIAR SALA</button><div class="grid" style="grid-template-columns:1fr auto"><input id="roomCode" placeholder="CÓDIGO" maxlength="6"/><button class="btn secondary" id="btnJoin">ENTRAR</button></div></div></div></section>
 
-    <section id="lobby" class="screen">
-      <div class="card-panel">
-        <h2>Sala: <span id="lobbyCode"></span></h2>
-        <div id="playerList" class="players"></div>
-        <div id="hostPanel"></div>
-        <button class="btn" id="btnStart" disabled>INICIAR PARTIDA</button>
-        <h3>Chat</h3>
-        <div id="chatLobby" class="chat"></div>
-        <div class="grid" style="grid-template-columns:1fr auto; margin-top:8px">
-          <input id="chatInput" placeholder="Mensagem"/>
-          <button class="btn secondary" id="btnSend">Enviar</button>
-        </div>
-        <div id="countdown"></div>
-      </div>
-    </section>
+    <section id="lobby" class="screen"><div class="card-panel"><h2>Sala: <span id="lobbyCode"></span></h2><div id="playerList" class="players"></div><div id="hostPanel"></div><button class="btn" id="btnStart" disabled>INICIAR PARTIDA</button><h3>Chat</h3><div id="chatLobby" class="chat"></div><div class="grid" style="grid-template-columns:1fr auto; margin-top:8px"><input id="chatInput" placeholder="Mensagem"/><button class="btn secondary" id="btnSend">Enviar</button></div><div id="countdown"></div></div></section>
 
     <section id="game" class="screen">
       <div class="card-panel">
         <div id="turnStatus" class="status"></div>
         <div class="top-row" id="opponents"></div>
-        <div class="mid-row">
-          <button class="btn secondary" id="drawBtn">COMPRAR (<span id="drawCount">0</span>)</button>
-          <div id="topCard"></div>
+
+        <div class="center-board">
+          <div id="drawPileZone" class="pile" role="button" aria-label="Monte de compra">
+            <span class="pile-label">Monte de compra</span>
+            <div class="card-back">UNO</div>
+            <small id="drawCountInfo" style="margin-top:4px;opacity:.8">0 cartas</small>
+          </div>
+          <div id="discardPileZone" class="pile" aria-label="Monte de descarte">
+            <span class="pile-label">Monte de jogada</span>
+            <div id="topCard"></div>
+          </div>
           <div id="direction">↻</div>
         </div>
-        <div class="bottom-row">
+
+        <div class="action-row">
+          <button class="btn secondary" id="drawBtn">COMPRAR</button>
           <button id="unoBtn" class="btn danger">UNO!</button>
+          <div id="unoHint" class="chip">Sem UNO pendente</div>
+          <div id="cutUnoTargets"></div>
         </div>
+
         <div class="hand" id="myHand"></div>
         <h3>Eventos</h3>
         <div id="eventLog" class="chat"></div>
@@ -119,15 +101,15 @@
   <div id="targetModal" class="modal"><div class="modal-box"><h3>Escolha um alvo</h3><div id="targetChoices"></div></div></div>
 
 <script>
-const state={ws:null,roomCode:null,playerId:null,isHost:false,settings:{},players:[],hand:[],topCard:null,currentPlayer:null,currentColor:null,drawPileCount:0,pending:null};
+const state={ws:null,roomCode:null,playerId:null,isHost:false,settings:{},players:[],hand:[],topCard:null,currentPlayer:null,currentColor:null,drawPileCount:0,direction:1};
 const $=id=>document.getElementById(id);
 const screens=['menu','lobby','game'];
+let draggedCard=null;
 function show(screen){screens.forEach(s=>$(s).classList.toggle('active',s===screen));}
 function wsUrl(){const ip=($('serverIp').value||localStorage.getItem('blaze_ip')||location.hostname).trim();localStorage.setItem('blaze_ip',ip);return `ws://${ip}:3000`;}
 function send(type,payload={}){if(state.ws?.readyState===1) state.ws.send(JSON.stringify({type,payload}));}
 function cardClass(card){return card.color==='wild'?'wild':card.color;}
 function cardLabel(card){const map={skip:'⛔',reverse:'🔁',draw2:'+2',hand_swap:'🔄M',peek:'👁',force_discard:'💥',wild:'🃏',wild_draw4:'+4',wild_swap_all:'🌪',wild_bonus:'🎁',wild_blase:'🎲'};return card.type==='number'?card.value:(map[card.type]||card.label)}
-function cardEl(card,playable=false){const d=document.createElement('button');d.className=`uno-card ${cardClass(card)} ${playable?'playable':''}`;d.disabled=!playable;d.textContent=cardLabel(card);return d;}
 function connect(cb){state.ws=new WebSocket(wsUrl());state.ws.onopen=cb;state.ws.onmessage=e=>onMsg(JSON.parse(e.data));state.ws.onclose=()=>addLog('Conexão encerrada.');}
 function vibrate(ms){if(navigator.vibrate) navigator.vibrate(ms);}
 function sparkle(x,y,color){for(let i=0;i<14;i++){const p=document.createElement('div');p.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:8px;height:8px;border-radius:50%;background:${color};pointer-events:none;z-index:30;transform:translate(-50%,-50%)`;document.body.appendChild(p);const a=Math.random()*Math.PI*2;const dist=24+Math.random()*58;const tx=Math.cos(a)*dist;const ty=Math.sin(a)*dist;const dur=420+Math.random()*260;p.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(.2)`,opacity:0}],{duration:dur,easing:'cubic-bezier(.2,.8,.2,1)'}).onfinish=()=>p.remove();}}
@@ -142,22 +124,54 @@ wrap.insertAdjacentHTML('beforeend',`<label>Pontos alvo<input id='targetPoints' 
 $('hostPanel').appendChild(wrap);
 wrap.querySelectorAll('input[type=checkbox]').forEach(i=>i.onchange=()=>{state.settings[i.dataset.k]=i.checked;send('update_settings',{settings:state.settings});});
 $('targetPoints').onchange=e=>{state.settings.targetPoints=Number(e.target.value||500);send('update_settings',{settings:state.settings});};
-}
-}
+}}
 
 function playable(card){if(!state.topCard) return true; if(card.color==='wild') return true; if(card.color===state.currentColor) return true; if(card.type==='number'&&state.topCard.type==='number'&&card.value===state.topCard.value) return true; if(card.type!=='number'&&card.type===state.topCard.type) return true; return false;}
 
-function renderGame(){show('game');
-$('drawCount').textContent=state.drawPileCount;$('direction').textContent=state.direction===1?'↻':'↺';
-$('turnStatus').textContent=state.currentPlayer===state.playerId?'Seu turno':'Aguardando '+(state.players.find(p=>p.id===state.currentPlayer)?.nickname||'...');
-$('turnStatus').classList.toggle('turn',state.currentPlayer===state.playerId);
-$('topCard').innerHTML=''; if(state.topCard) $('topCard').appendChild(cardEl(state.topCard,false));
-$('opponents').innerHTML=''; state.players.filter(p=>p.id!==state.playerId).forEach(p=>{const d=document.createElement('div');d.className='status '+(p.id===state.currentPlayer?'turn':'');d.textContent=`${p.nickname} • ${p.handCount} cartas${p.handCount===1?' • UNO!':''}`;$('opponents').appendChild(d);});
-$('myHand').innerHTML=''; state.hand.forEach(card=>{const can=state.currentPlayer===state.playerId && playable(card);const el=cardEl(card,can);el.onclick=()=>playCard(card,el);$('myHand').appendChild(el);});
-$('drawBtn').disabled=state.currentPlayer!==state.playerId;
-$('unoBtn').style.display=state.hand.length===2?'inline-block':'none';
+function cardEl(card,playableCard=false){
+  const d=document.createElement('button');
+  d.className=`uno-card ${cardClass(card)} ${playableCard?'playable':''}`;
+  d.disabled=!playableCard;
+  d.textContent=cardLabel(card);
+  d.draggable=playableCard;
+  d.onclick=()=>playCard(card,d);
+  d.addEventListener('dragstart',()=>{draggedCard=card;d.classList.add('dragging');});
+  d.addEventListener('dragend',()=>{draggedCard=null;d.classList.remove('dragging');$('discardPileZone').classList.remove('drop-hover');});
+  return d;
 }
 
+function renderOpponents(){
+  $('opponents').innerHTML='';
+  state.players.filter(p=>p.id!==state.playerId).forEach(p=>{
+    const d=document.createElement('div');
+    d.className='opponent '+(p.id===state.currentPlayer?'turn':'');
+    const backs=Array.from({length:Math.min(7,p.handCount||0)}).map(()=>'<span class="back-mini"></span>').join('');
+    d.innerHTML=`<div class="avatar">${(p.nickname||'?').slice(0,1).toUpperCase()}</div><div class="opp-meta"><strong>${p.nickname}</strong><br>${p.handCount} cartas ${p.handCount===1?'• UNO!':''}</div><div class="opp-cards">${backs}</div>`;
+    $('opponents').appendChild(d);
+  });
+}
+
+function renderGame(){show('game');
+$('drawCountInfo').textContent=`${state.drawPileCount} cartas`;
+$('direction').textContent=state.direction===1?'↻':'↺';
+$('turnStatus').textContent=state.currentPlayer===state.playerId?'Sua vez • arraste uma carta para o monte':'Vez de '+(state.players.find(p=>p.id===state.currentPlayer)?.nickname||'...');
+$('turnStatus').classList.toggle('turn',state.currentPlayer===state.playerId);
+$('topCard').innerHTML=''; if(state.topCard) $('topCard').appendChild(cardEl(state.topCard,false));
+renderOpponents();
+$('myHand').innerHTML=''; state.hand.forEach(card=>$('myHand').appendChild(cardEl(card,state.currentPlayer===state.playerId && playable(card))));
+$('drawBtn').disabled=state.currentPlayer!==state.playerId;
+const unoReady=state.hand.length<=2;
+$('unoBtn').style.display=unoReady?'inline-block':'none';
+$('unoBtn').classList.toggle('turn',state.hand.length===1);
+$('unoHint').textContent=state.hand.length===1?'⚠️ Clique UNO! agora':state.hand.length===2?'Você pode declarar UNO antecipado':'Sem UNO pendente';
+$('unoHint').className='chip'+(state.hand.length===1?' warn':'');
+
+const cutTargets=state.players.filter(p=>p.id!==state.playerId && p.handCount===1);
+$('cutUnoTargets').innerHTML='';
+cutTargets.forEach(p=>{const b=document.createElement('button');b.className='btn danger';b.style.padding='8px 10px';b.textContent=`CORTA UNO: ${p.nickname}`;b.onclick=()=>cutUno(p);$('cutUnoTargets').appendChild(b);});
+}
+
+function cutUno(player){vibrate([20,40,20]);celebrateCenter('#ff768f');addLog(`⚠️ ${player.nickname} recebeu CORTA UNO!`);send('send_chat',{message:`CORTA UNO em ${player.nickname}!`});}
 function addLog(msg){const line=document.createElement('div');line.innerHTML=`<small>${new Date().toLocaleTimeString()}</small> ${msg}`;const box=$('eventLog');if(box){box.appendChild(line);box.scrollTop=box.scrollHeight;}}
 function addChat(msg){const line=document.createElement('div');line.textContent=`[${new Date().toLocaleTimeString()}] ${msg.nickname}: ${msg.message}`;$('chatLobby').appendChild(line);$('chatLobby').scrollTop=$('chatLobby').scrollHeight;}
 
@@ -167,9 +181,7 @@ async function chooseTarget(){const enemies=state.players.filter(p=>p.id!==state
 async function playCard(card,el){const payload={cardId:card.id}; if(card.color==='wild') payload.chosenColor=await chooseColor();
 if(['hand_swap','peek','force_discard'].includes(card.type) || (state.settings.sevenZero && card.type==='number'&&card.value===7)) payload.targetPlayerId=await chooseTarget();
 if(el){const r=el.getBoundingClientRect();sparkle(r.left+r.width/2,r.top+r.height/2,'#ffffff');}
-vibrate(20);
-send('play_card',payload);
-}
+vibrate(20);send('play_card',payload);}
 
 function onMsg(msg){switch(msg.type){
   case 'room_created': state.roomCode=msg.roomCode; state.playerId=msg.playerId; break;
@@ -187,10 +199,7 @@ function onMsg(msg){switch(msg.type){
   case 'chat_message': addChat(msg); break;
   case 'round_ended': celebrateCenter('#ffe27a'); addLog(`Rodada vencida por ${msg.winner.nickname}`); break;
   case 'game_ended': celebrateCenter('#63e68c'); addLog(`Partida encerrada! Vencedor: ${msg.winner.nickname}`); show('lobby'); break;
-  case 'room_state': {
-      const s=msg.fullState; state.roomCode=s.roomCode; state.players=s.players; state.settings=s.settings; state.currentPlayer=s.currentPlayer; state.direction=s.direction;
-      state.topCard=s.topCard; state.currentColor=s.currentColor; state.drawPileCount=s.drawPileCount; state.hand=s.hand||[]; renderLobby(); if(s.state==='playing') renderGame();
-    } break;
+  case 'room_state': {const s=msg.fullState; state.roomCode=s.roomCode; state.players=s.players; state.settings=s.settings; state.currentPlayer=s.currentPlayer; state.direction=s.direction; state.topCard=s.topCard; state.currentColor=s.currentColor; state.drawPileCount=s.drawPileCount; state.hand=s.hand||[]; renderLobby(); if(s.state==='playing') renderGame();} break;
   case 'error': alert(msg.message); break;
 }}
 
@@ -201,6 +210,15 @@ $('btnStart').onclick=()=>send('start_game');
 $('drawBtn').onclick=()=>send('draw_card');
 $('unoBtn').onclick=()=>{vibrate([40,40,80]);celebrateCenter('#ff6c8b');send('call_uno');};
 $('btnSend').onclick=()=>{send('send_chat',{message:$('chatInput').value});$('chatInput').value='';};
+
+$('drawPileZone').addEventListener('click',()=>{if(state.currentPlayer===state.playerId) send('draw_card');});
+$('drawPileZone').addEventListener('dragover',e=>{e.preventDefault();$('drawPileZone').classList.add('drop-hover');});
+$('drawPileZone').addEventListener('dragleave',()=>$('drawPileZone').classList.remove('drop-hover'));
+$('drawPileZone').addEventListener('drop',e=>{e.preventDefault();$('drawPileZone').classList.remove('drop-hover');if(state.currentPlayer===state.playerId) send('draw_card');});
+
+$('discardPileZone').addEventListener('dragover',e=>{if(draggedCard){e.preventDefault();$('discardPileZone').classList.add('drop-hover');}});
+$('discardPileZone').addEventListener('dragleave',()=>$('discardPileZone').classList.remove('drop-hover'));
+$('discardPileZone').addEventListener('drop',async e=>{e.preventDefault();$('discardPileZone').classList.remove('drop-hover');if(draggedCard) await playCard(draggedCard);draggedCard=null;});
 </script>
 </body>
 </html>
