@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLAZE CARDS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f0f1a;--panel:#1a1a2e;--txt:#f2f5ff;--accent:#7c5cff;--red:#ff4d6d;--blue:#4dabf7;--green:#51cf66;--yellow:#ffd43b}
+    *{box-sizing:border-box} body{margin:0;font-family:Nunito,sans-serif;background:radial-gradient(circle at 30% 20%,#1e1b4b,#0f0f1a 60%);color:var(--txt);min-height:100vh;overflow-x:hidden}
+    .floating::before,.floating::after{content:"";position:fixed;width:120px;height:180px;border-radius:16px;background:#ffffff10;animation:float 14s infinite ease-in-out;z-index:-1}
+    .floating::before{left:8%;top:10%}.floating::after{right:8%;bottom:10%;animation-delay:2s}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-40px) rotate(8deg)}}
+    .container{max-width:1080px;margin:0 auto;padding:16px}
+    .screen{display:none}.screen.active{display:block;animation:fade .25s ease}
+    @keyframes fade{from{opacity:.1;transform:translateY(8px)}to{opacity:1;transform:none}}
+    h1,h2,h3{font-family:Fredoka,sans-serif;margin:8px 0}
+    .card-panel{background:var(--panel);border-radius:18px;padding:16px;box-shadow:0 10px 20px #0005}
+    .btn{border:none;border-radius:14px;padding:12px 18px;font-weight:800;cursor:pointer;background:var(--accent);color:white}
+    .btn.secondary{background:#2f365d}.btn.danger{background:var(--red)} .btn:disabled{opacity:.5;cursor:not-allowed}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #ffffff22;background:#121225;color:#fff}
+    .grid{display:grid;gap:10px}.grid-2{grid-template-columns:1fr 1fr}
+    .players{display:flex;gap:8px;flex-wrap:wrap}.pchip{padding:8px 12px;border-radius:999px;background:#ffffff10}
+    .top-row,.mid-row,.bottom-row{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .uno-card{width:72px;height:108px;border-radius:14px;padding:8px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #ffffff11 inset,0 10px 16px #0008;transition:.2s}
+    .uno-card.playable:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 0 16px #fff6}
+    .hand{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+    .red{background:linear-gradient(145deg,#ff6b81,#b3082a)}.blue{background:linear-gradient(145deg,#74c0fc,#114c82)}
+    .green{background:linear-gradient(145deg,#69db7c,#1c6b2a)}.yellow{background:linear-gradient(145deg,#ffe066,#9f7f00)}
+    .wild{background:linear-gradient(145deg,#495057,#101113)}
+    .status{padding:8px;border-radius:12px;background:#0004}.turn{animation:pulse 1.2s infinite}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 #7c5cff88}70%{box-shadow:0 0 0 14px #7c5cff00}100%{box-shadow:0 0 0 0 #7c5cff00}}
+    .modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:4}.modal.active{display:flex}
+    .modal-box{background:#1a1a2e;padding:16px;border-radius:16px;min-width:280px}
+    .colors{display:flex;gap:10px;justify-content:center}.dot{width:52px;height:52px;border-radius:50%;cursor:pointer}
+    .chat{max-height:160px;overflow:auto;background:#0003;border-radius:10px;padding:8px}
+    small{opacity:.8}
+  </style>
+</head>
+<body class="floating">
+  <div class="container">
+    <section id="menu" class="screen active">
+      <div class="card-panel">
+        <h1>🔥 BLAZE CARDS</h1>
+        <p>UNO multiplayer para rede local.</p>
+        <div class="grid grid-2">
+          <div><label>IP do servidor</label><input id="serverIp" placeholder="192.168.0.10"/></div>
+          <div><label>Apelido</label><input id="nickname" placeholder="Seu nome"/></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:10px">
+          <button class="btn" id="btnCreate">CRIAR SALA</button>
+          <div class="grid" style="grid-template-columns:1fr auto">
+            <input id="roomCode" placeholder="CÓDIGO" maxlength="6"/>
+            <button class="btn secondary" id="btnJoin">ENTRAR</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lobby" class="screen">
+      <div class="card-panel">
+        <h2>Sala: <span id="lobbyCode"></span></h2>
+        <div id="playerList" class="players"></div>
+        <div id="hostPanel"></div>
+        <button class="btn" id="btnStart" disabled>INICIAR PARTIDA</button>
+        <h3>Chat</h3>
+        <div id="chatLobby" class="chat"></div>
+        <div class="grid" style="grid-template-columns:1fr auto; margin-top:8px">
+          <input id="chatInput" placeholder="Mensagem"/>
+          <button class="btn secondary" id="btnSend">Enviar</button>
+        </div>
+        <div id="countdown"></div>
+      </div>
+    </section>
+
+    <section id="game" class="screen">
+      <div class="card-panel">
+        <div id="turnStatus" class="status"></div>
+        <div class="top-row" id="opponents"></div>
+        <div class="mid-row">
+          <button class="btn secondary" id="drawBtn">COMPRAR (<span id="drawCount">0</span>)</button>
+          <div id="topCard"></div>
+          <div id="direction">↻</div>
+        </div>
+        <div class="bottom-row">
+          <button id="unoBtn" class="btn danger">UNO!</button>
+        </div>
+        <div class="hand" id="myHand"></div>
+        <h3>Eventos</h3>
+        <div id="eventLog" class="chat"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="colorModal" class="modal"><div class="modal-box"><h3>Escolha uma cor</h3><div class="colors" id="colorChoices"></div></div></div>
+  <div id="targetModal" class="modal"><div class="modal-box"><h3>Escolha um alvo</h3><div id="targetChoices"></div></div></div>
+
+<script>
+const state={ws:null,roomCode:null,playerId:null,isHost:false,settings:{},players:[],hand:[],topCard:null,currentPlayer:null,currentColor:null,drawPileCount:0,pending:null};
+const $=id=>document.getElementById(id);
+const screens=['menu','lobby','game'];
+function show(screen){screens.forEach(s=>$(s).classList.toggle('active',s===screen));}
+function wsUrl(){const ip=($('serverIp').value||localStorage.getItem('blaze_ip')||location.hostname).trim();localStorage.setItem('blaze_ip',ip);return `ws://${ip}:3000`;}
+function send(type,payload={}){if(state.ws?.readyState===1) state.ws.send(JSON.stringify({type,payload}));}
+function cardClass(card){return card.color==='wild'?'wild':card.color;}
+function cardLabel(card){const map={skip:'⛔',reverse:'🔁',draw2:'+2',hand_swap:'🔄M',peek:'👁',force_discard:'💥',wild:'🃏',wild_draw4:'+4',wild_swap_all:'🌪',wild_bonus:'🎁',wild_blase:'🎲'};return card.type==='number'?card.value:(map[card.type]||card.label)}
+function cardEl(card,playable=false){const d=document.createElement('button');d.className=`uno-card ${cardClass(card)} ${playable?'playable':''}`;d.disabled=!playable;d.textContent=cardLabel(card);return d;}
+function connect(cb){state.ws=new WebSocket(wsUrl());state.ws.onopen=cb;state.ws.onmessage=e=>onMsg(JSON.parse(e.data));state.ws.onclose=()=>addLog('Conexão encerrada.');}
+
+function renderLobby(){show('lobby');$('lobbyCode').textContent=state.roomCode;$('playerList').innerHTML='';state.players.forEach(p=>{const d=document.createElement('div');d.className='pchip';d.textContent=`${p.nickname}${p.isHost?' 👑':''} (${p.handCount})`;$('playerList').appendChild(d);});
+$('btnStart').disabled=!(state.isHost && state.players.length>=Math.max(2,state.settings.minPlayers||2));
+$('hostPanel').innerHTML=''; if(state.isHost){const wrap=document.createElement('div');wrap.className='grid grid-2';
+const defs=[['fastRound','Rodada Rápida'],['stackDraw','Acumular +2/+4'],['strictUno','UNO Estrito'],['drawAndPassOnly','Puxa Nada'],['sevenZero','Sete-Zero'],['extraSpecialCards','Especiais Extras']];
+defs.forEach(([k,label])=>{const c=document.createElement('label');c.innerHTML=`<input type='checkbox' ${state.settings[k]?'checked':''} data-k='${k}'/> ${label}`;wrap.appendChild(c);});
+wrap.insertAdjacentHTML('beforeend',`<label>Pontos alvo<input id='targetPoints' type='number' value='${state.settings.targetPoints||500}'/></label>`);
+$('hostPanel').appendChild(wrap);
+wrap.querySelectorAll('input[type=checkbox]').forEach(i=>i.onchange=()=>{state.settings[i.dataset.k]=i.checked;send('update_settings',{settings:state.settings});});
+$('targetPoints').onchange=e=>{state.settings.targetPoints=Number(e.target.value||500);send('update_settings',{settings:state.settings});};
+}
+}
+
+function playable(card){if(!state.topCard) return true; if(card.color==='wild') return true; if(card.color===state.currentColor) return true; if(card.type==='number'&&state.topCard.type==='number'&&card.value===state.topCard.value) return true; if(card.type!=='number'&&card.type===state.topCard.type) return true; return false;}
+
+function renderGame(){show('game');
+$('drawCount').textContent=state.drawPileCount;$('direction').textContent=state.direction===1?'↻':'↺';
+$('turnStatus').textContent=state.currentPlayer===state.playerId?'Seu turno':'Aguardando '+(state.players.find(p=>p.id===state.currentPlayer)?.nickname||'...');
+$('turnStatus').classList.toggle('turn',state.currentPlayer===state.playerId);
+$('topCard').innerHTML=''; if(state.topCard) $('topCard').appendChild(cardEl(state.topCard,false));
+$('opponents').innerHTML=''; state.players.filter(p=>p.id!==state.playerId).forEach(p=>{const d=document.createElement('div');d.className='status '+(p.id===state.currentPlayer?'turn':'');d.textContent=`${p.nickname} • ${p.handCount} cartas${p.handCount===1?' • UNO!':''}`;$('opponents').appendChild(d);});
+$('myHand').innerHTML=''; state.hand.forEach(card=>{const can=state.currentPlayer===state.playerId && playable(card);const el=cardEl(card,can);el.onclick=()=>playCard(card);$('myHand').appendChild(el);});
+$('drawBtn').disabled=state.currentPlayer!==state.playerId;
+$('unoBtn').style.display=state.hand.length===2?'inline-block':'none';
+}
+
+function addLog(msg){const line=document.createElement('div');line.innerHTML=`<small>${new Date().toLocaleTimeString()}</small> ${msg}`;const box=$('eventLog');if(box){box.appendChild(line);box.scrollTop=box.scrollHeight;}}
+function addChat(msg){const line=document.createElement('div');line.textContent=`[${new Date().toLocaleTimeString()}] ${msg.nickname}: ${msg.message}`;$('chatLobby').appendChild(line);$('chatLobby').scrollTop=$('chatLobby').scrollHeight;}
+
+async function chooseColor(){return new Promise(resolve=>{const modal=$('colorModal');const wrap=$('colorChoices');wrap.innerHTML='';['red','blue','green','yellow'].forEach(c=>{const d=document.createElement('div');d.className='dot '+c;d.onclick=()=>{modal.classList.remove('active');resolve(c)};wrap.appendChild(d)});modal.classList.add('active');});}
+async function chooseTarget(){const enemies=state.players.filter(p=>p.id!==state.playerId);return new Promise(resolve=>{const modal=$('targetModal');const wrap=$('targetChoices');wrap.innerHTML='';enemies.forEach(p=>{const b=document.createElement('button');b.className='btn secondary';b.style.margin='4px';b.textContent=`${p.nickname} (${p.handCount})`;b.onclick=()=>{modal.classList.remove('active');resolve(p.id)};wrap.appendChild(b)});modal.classList.add('active');});}
+
+async function playCard(card){const payload={cardId:card.id}; if(card.color==='wild') payload.chosenColor=await chooseColor();
+if(['hand_swap','peek','force_discard'].includes(card.type) || (state.settings.sevenZero && card.type==='number'&&card.value===7)) payload.targetPlayerId=await chooseTarget();
+send('play_card',payload);
+}
+
+function onMsg(msg){switch(msg.type){
+  case 'room_created': state.roomCode=msg.roomCode; state.playerId=msg.playerId; break;
+  case 'room_joined': state.roomCode=msg.roomCode; state.players=msg.players; state.settings=msg.settings; state.isHost=msg.isHost; renderLobby(); break;
+  case 'player_joined': state.players.push(msg.player); renderLobby(); break;
+  case 'player_left': state.players=state.players.map(p=>p.id===msg.playerId?{...p,online:false}:p); renderLobby(); break;
+  case 'countdown': $('countdown').textContent=msg.seconds>0?`Iniciando em ${msg.seconds}...`:'GO!'; break;
+  case 'game_started': state.hand=msg.hand; state.topCard=msg.topCard; state.currentPlayer=msg.currentPlayer; state.direction=msg.direction; state.settings=msg.settings; renderGame(); break;
+  case 'card_played': state.topCard=msg.topCard; state.currentPlayer=msg.nextPlayer; state.direction=msg.direction; if(msg.playerId===state.playerId){state.hand=state.hand.filter(c=>c.id!==msg.card.id);} state.currentColor=msg.chosenColor; addLog(`Jogada de ${state.players.find(p=>p.id===msg.playerId)?.nickname||'jogador'}: ${cardLabel(msg.card)}`); renderGame(); break;
+  case 'card_drawn': state.players=state.players.map(p=>p.id===msg.playerId?{...p,handCount:(p.handCount||0)+msg.count}:p); renderGame(); break;
+  case 'drawn_cards': state.hand.push(...msg.cards); renderGame(); break;
+  case 'uno_called': addLog(`${state.players.find(p=>p.id===msg.playerId)?.nickname||'Jogador'} gritou UNO!`); break;
+  case 'uno_penalty': addLog(`Punição UNO em ${state.players.find(p=>p.id===msg.playerId)?.nickname||'jogador'} (+${msg.cards})`); break;
+  case 'turn_changed': state.currentPlayer=msg.currentPlayer; renderGame(); break;
+  case 'chat_message': addChat(msg); break;
+  case 'round_ended': addLog(`Rodada vencida por ${msg.winner.nickname}`); break;
+  case 'game_ended': addLog(`Partida encerrada! Vencedor: ${msg.winner.nickname}`); show('lobby'); break;
+  case 'room_state': {
+      const s=msg.fullState; state.roomCode=s.roomCode; state.players=s.players; state.settings=s.settings; state.currentPlayer=s.currentPlayer; state.direction=s.direction;
+      state.topCard=s.topCard; state.currentColor=s.currentColor; state.drawPileCount=s.drawPileCount; state.hand=s.hand||[]; renderLobby(); if(s.state==='playing') renderGame();
+    } break;
+  case 'error': alert(msg.message); break;
+}}
+
+$('serverIp').value=localStorage.getItem('blaze_ip')||location.hostname;
+$('btnCreate').onclick=()=>{connect(()=>send('create_room',{nickname:$('nickname').value.trim()||'Jogador',settings:{}}));};
+$('btnJoin').onclick=()=>{connect(()=>send('join_room',{roomCode:$('roomCode').value.trim().toUpperCase(),nickname:$('nickname').value.trim()||'Jogador'}));};
+$('btnStart').onclick=()=>send('start_game');
+$('drawBtn').onclick=()=>send('draw_card');
+$('unoBtn').onclick=()=>send('call_uno');
+$('btnSend').onclick=()=>{send('send_chat',{message:$('chatInput').value});$('chatInput').value='';};
+</script>
+</body>
+</html>
