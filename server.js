@@ -10,7 +10,21 @@ const os = require('os');
 const { WebSocketServer } = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css':  'text/css; charset=utf-8',
+  '.js':   'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg':  'image/svg+xml',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.ico':  'image/x-icon',
+  '.webmanifest': 'application/manifest+json',
+  '.mp3':  'audio/mpeg',
+  '.wav':  'audio/wav',
+};
 const RECONNECT_TIMEOUT_MS = 30000;
 const COUNTDOWN_SECONDS = 3;
 const TURN_LIMIT_SECONDS = 20;
@@ -837,9 +851,24 @@ function printTerminalPanel(serverIp) {
 }
 
 function serveStatic(req, res) {
-  let filePath = req.url === '/' ? '/public/index.html' : req.url;
-  filePath = path.join(__dirname, filePath);
+  // Strip query strings
+  const urlPath = req.url.split('?')[0];
 
+  // API: expose local IP for QR code generation
+  if (urlPath === '/api/info') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      'Access-Control-Allow-Origin': '*',
+    });
+    return res.end(JSON.stringify({ ip: getLocalIPv4(), port: PORT }));
+  }
+
+  // Map URL to filesystem path inside /public
+  const relPath = urlPath === '/' ? '/index.html' : urlPath;
+  const filePath = path.join(__dirname, 'public', relPath);
+
+  // Security: block path traversal outside public/
   if (!filePath.startsWith(path.join(__dirname, 'public'))) {
     res.writeHead(403);
     return res.end('Forbidden');
@@ -850,9 +879,9 @@ function serveStatic(req, res) {
       res.writeHead(404);
       return res.end('Not found');
     }
-    const ext = path.extname(filePath);
-    const contentType = ext === '.html' ? 'text/html' : 'text/plain';
-    res.writeHead(200, { 'Content-Type': contentType });
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': 'no-cache' });
     return res.end(content);
   });
 }
